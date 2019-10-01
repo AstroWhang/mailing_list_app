@@ -1,7 +1,10 @@
+const express = require("express");
+const mysql = require("mysql");
 const faker = require("faker");
-var mysql = require("mysql");
 
-var connection = mysql.createConnection({
+const app = express();
+
+const connection = mysql.createConnection({
   host: "localhost",
   user: "root",
   password: "123456789",
@@ -9,29 +12,38 @@ var connection = mysql.createConnection({
   port: 3306
 });
 
-let data = [];
-let addUsers = 1;
+//sql string squery
+// const q = "SELECT COUNT(*) AS count FROM users WHERE email LIKE ?";
 
-for (let i = 0; i < addUsers; i++) {
-  data.push([faker.internet.email(), faker.date.past()]);
-}
+// app.get("/", (req, res) => {
+//   connection.query(q, ["%gmail%"], (err, results) => {
+//     if (err) throw res.send("Error Error Error!!");
+//     let count = results[0].count;
+//     res.send(`We have ${count} users in our mailing list`);
+//   });
+// });
 
-const person = {
-  email: faker.internet.email(),
-  created_at: faker.date.past()
-};
+const q = "SELECT COUNT(*) AS count FROM users";
 
-let q = "INSERT INTO USERS (email, created_at) VALUES ?";
-
-connection.query(q, [data], (err, result, fields) => {
-  if (err) throw err;
-  console.log(result);
+app.get("/", (req, res) => {
+  connection.query(q, (err, results) => {
+    if (err) throw res.send("Error Error Error!!");
+    let count = results[0].count;
+    res.send(`We have ${count} users in our mailing list`);
+  });
 });
 
-connection.end();
+app.get("/joke", (req, res) => {
+  console.log("joke sent");
+  res.send("Here's a funny joke!");
+});
 
-// var q = "Select 1 + 1 AS solution";
-// connection.query(q, (err, results, fields) => {
-//   if (err) throw err;
-//   console.log(`The solution is: ${results[0].solution}`);
-// });
+app.get("/random_num", (req, res) => {
+  console.log("you're random number is ");
+  let num = Math.floor(Math.random() * 10 + 1);
+  res.send(`Your lucky number is ${num}`);
+});
+
+app.listen(8080, () => {
+  console.log("server running on 8080");
+});
